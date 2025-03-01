@@ -1,0 +1,104 @@
+@import "tailwindcss";
+
+:root {
+  /* Font variables */
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  
+  /* Default theme variables (will be overridden by JS) */
+  --primary: #2563eb;
+  --primaryHover: #1d4ed8;
+  --secondary: #6b7280;
+  --secondaryHover: #4b5563;
+  --background: #ffffff;
+  --foreground: #171717;
+  --card: #f9fafb;
+  --border: #e5e7eb;
+  --muted: #f3f4f6;
+  --mutedForeground: #6b7280;
+  --accent: #f3f4f6;
+  --accentForeground: #1f2937;
+  --success: #10b981;
+  --successForeground: #ffffff;
+  --warning: #f59e0b;
+  --warningForeground: #ffffff;
+  --error: #ef4444;
+  --errorForeground: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+/* Base styles */
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+/* Theme utility classes */
+.bg-primary {
+  background-color: var(--primary);
+}
+
+.text-primary {
+  color: var(--primary);
+}
+
+.border-primary {
+  border-color: var(--primary);
+}
+
+.bg-card {
+  background-color: var(--card);
+}
+
+.border-default {
+  border-color: var(--border);
+}
+
+.text-muted {
+  color: var(--mutedForeground);
+}
+
+.bg-muted {
+  background-color: var(--muted);
+}
+
+/* Button styles */
+.btn-primary {
+  background-color: var(--primary);
+  color: white;
+  transition: background-color 0.2s;
+}
+
+.btn-primary:hover {
+  background-color: var(--primaryHover);
+}
+
+.btn-secondary {
+  background-color: var(--secondary);
+  color: white;
+  transition: background-color 0.2s;
+}
+
+.btn-secondary:hover {
+  background-color: var(--secondaryHover);
+}
+
+/* Card styles */
+.card {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+/* Dark theme specific overrides */
+.dark-theme .invert-colors {
+  filter: invert(1);
+}
