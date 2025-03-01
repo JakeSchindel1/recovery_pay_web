@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Theme, ThemeVariant, defaultTheme, getThemeVariant, getThemeVariables } from './themes';
 import themeService from './theme-service';
-import supabaseThemeService from './supabase-theme-service';
+import { supabaseThemeService } from './supabase-theme-service';
 import { useAuth } from './auth-context';
 
 type ThemeContextType = {
@@ -27,67 +27,52 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   // Initialize theme and mode from storage
   useEffect(() => {
-    const initializeTheme = async () => {
+    // Load dark mode from localStorage first
+    const savedDarkMode = localStorage.getItem('darkMode') === 'true';
+    setIsDarkMode(savedDarkMode);
+
+    // Load theme based on authentication status
+    const loadTheme = async () => {
       try {
-        // First try to load from Supabase if user is authenticated
-        if (user) {
-          // Load user preference
-          const preference = await supabaseThemeService.getUserThemePreference();
-          if (preference) {
-            // Set dark mode from preference
-            setIsDarkMode(preference.isDarkMode);
-            
-            // Get the theme by ID
-            const theme = await supabaseThemeService.getThemeById(preference.themeId);
-            if (theme) {
-              setCurrentTheme(theme);
-              setCurrentVariant(preference.isDarkMode ? theme.dark : theme.light);
-              return;
-            }
-          }
-          
-          // If no preference found, load available themes and use default
-          const themes = await supabaseThemeService.getUserThemes();
-          setAvailableThemes(themes);
-          
-          // Use default theme
-          const defaultThemeFromList = themes.find(t => t.isDefault) || themes[0] || defaultTheme;
-          setCurrentTheme(defaultThemeFromList);
-          
-          // Check localStorage for dark mode preference
-          const savedDarkMode = localStorage.getItem('darkMode') === 'true';
-          setIsDarkMode(savedDarkMode);
-          setCurrentVariant(savedDarkMode ? defaultThemeFromList.dark : defaultThemeFromList.light);
+        if (!user) {
+          // Non-authenticated users use local storage
+          const savedThemeName = localStorage.getItem('themeName') || defaultTheme.name;
+          const userThemes = themeService.getUserThemes('default_user');
+          const theme = userThemes.find(t => t.name === savedThemeName) || defaultTheme;
+          setCurrentTheme(theme);
+          setAvailableThemes(userThemes);
+          setCurrentVariant(savedDarkMode ? theme.dark : theme.light);
           return;
         }
-        
-        // Fallback to localStorage for non-authenticated users
-        const savedThemeName = localStorage.getItem('themeName') || defaultTheme.name;
-        const savedDarkMode = localStorage.getItem('darkMode') === 'true';
-        
-        // Set initial dark mode state
-        setIsDarkMode(savedDarkMode);
-        
-        // Find the theme by name from local storage
-        const userThemes = themeService.getUserThemes('default_user');
-        const theme = userThemes.find(t => t.name === savedThemeName) || defaultTheme;
-        
-        // Set the current theme
-        setCurrentTheme(theme);
-        setAvailableThemes(userThemes);
-        
-        // Set the current variant based on dark mode
-        setCurrentVariant(savedDarkMode ? theme.dark : theme.light);
+
+        // For authenticated users, try to load from Supabase
+        const themes = await supabaseThemeService.getUserThemes();
+        setAvailableThemes(themes);
+
+        const preference = await supabaseThemeService.getUserActiveTheme();
+        if (preference?.themeId) {
+          const theme = themes.find((t: Theme) => t.id === preference.themeId);
+          if (theme) {
+            setCurrentTheme(theme);
+            setIsDarkMode(preference.isDarkMode);
+            setCurrentVariant(preference.isDarkMode ? theme.dark : theme.light);
+            return;
+          }
+        }
+
+        // If no preference or theme not found, use default
+        const defaultThemeFromList = themes.find((t: Theme) => t.isDefault) || themes[0] || defaultTheme;
+        setCurrentTheme(defaultThemeFromList);
+        setCurrentVariant(savedDarkMode ? defaultThemeFromList.dark : defaultThemeFromList.light);
       } catch (error) {
-        console.error('Error initializing theme:', error);
+        console.error('Error loading theme:', error);
         // Fallback to default theme
         setCurrentTheme(defaultTheme);
-        setCurrentVariant(defaultTheme.light);
-        setAvailableThemes([defaultTheme]);
+        setCurrentVariant(savedDarkMode ? defaultTheme.dark : defaultTheme.light);
       }
     };
-    
-    initializeTheme();
+
+    loadTheme();
   }, [user]);
 
   // Refresh available themes
@@ -138,7 +123,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       // Save preference
       if (user) {
         // Save to Supabase
-        await supabaseThemeService.setUserThemePreference(themeId, isDarkMode);
+        await supabaseThemeService.setActiveTheme(themeId, isDarkMode);
       } else {
         // Save to localStorage
         localStorage.setItem('themeName', theme.name);
@@ -160,7 +145,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       
       if (user && currentTheme.id) {
         // Save to Supabase
-        await supabaseThemeService.setUserThemePreference(currentTheme.id, newDarkMode);
+        await supabaseThemeService.setActiveTheme(currentTheme.id, newDarkMode);
       }
     } catch (error) {
       console.error('Error toggling dark mode:', error);

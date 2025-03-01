@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
-import { AuthProvider } from '../lib/auth-context';
+import { AuthProvider, useAuth } from '../lib/auth-context';
 import { ThemeProvider, useTheme } from '../lib/theme-context';
 
 // Theme toggle button component
@@ -31,9 +31,69 @@ function ThemeToggle() {
   );
 }
 
+// Profile dropdown component
+function ProfileDropdown() {
+  const [isOpen, setIsOpen] = useState(false);
+  const { user, signOut } = useAuth();
+  const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User';
+  const orgName = user?.user_metadata?.organization || 'Recovery House';
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors"
+      >
+        <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+          <span className="text-primary font-semibold">
+            {userName.split(' ').map((n: string) => n[0]).join('')}
+          </span>
+        </div>
+        <span className="hidden md:inline text-sm font-medium">{userName}</span>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+          <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+        </svg>
+      </button>
+
+      {isOpen && (
+        <div className="absolute right-0 mt-2 w-48 bg-card rounded-md shadow-lg border border-border py-1">
+          <div className="px-4 py-2 border-b border-border">
+            <p className="text-sm font-medium text-foreground">{userName}</p>
+            <p className="text-xs text-mutedForeground">{orgName}</p>
+          </div>
+          <Link
+            href="/dashboard"
+            className="block px-4 py-2 text-sm text-foreground hover:bg-muted"
+            onClick={() => setIsOpen(false)}
+          >
+            Dashboard
+          </Link>
+          <Link
+            href="/dashboard/settings"
+            className="block px-4 py-2 text-sm text-foreground hover:bg-muted"
+            onClick={() => setIsOpen(false)}
+          >
+            Settings
+          </Link>
+          <button
+            onClick={() => {
+              signOut();
+              setIsOpen(false);
+            }}
+            className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-muted"
+          >
+            Sign Out
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // Layout content component
 function LayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const { user } = useAuth();
   
   // Check if we're in the dashboard area
   const isDashboard = pathname?.startsWith('/dashboard');
@@ -46,7 +106,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
   ];
   
   return (
-    <AuthProvider>
+    <>
       <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md">
         <nav className="container mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center">
@@ -74,18 +134,25 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
           <div className="flex gap-4 items-center">
             {/* Only show theme toggle in dashboard */}
             {isDashboard && <ThemeToggle />}
-            <Link
-              href="/login"
-              className="text-sm font-medium hover:text-primary transition-colors"
-            >
-              Login
-            </Link>
-            <Link
-              href="/signup"
-              className="text-sm font-medium bg-primary hover:bg-primaryHover text-white px-4 py-2 rounded-md transition-colors"
-            >
-              Sign Up
-            </Link>
+            
+            {user ? (
+              <ProfileDropdown />
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="text-sm font-medium hover:text-primary transition-colors"
+                >
+                  Login
+                </Link>
+                <Link
+                  href="/signup"
+                  className="text-sm font-medium bg-primary hover:bg-primaryHover text-white px-4 py-2 rounded-md transition-colors"
+                >
+                  Sign Up
+                </Link>
+              </>
+            )}
           </div>
         </nav>
         
@@ -129,21 +196,38 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
             <div>
               <h3 className="font-semibold text-foreground mb-4">Account</h3>
               <ul className="space-y-2">
-                <li>
-                  <Link href="/login" className="hover:text-primary transition-colors">
-                    Login
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/signup" className="hover:text-primary transition-colors">
-                    Sign Up
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/forgot-password" className="hover:text-primary transition-colors">
-                    Reset Password
-                  </Link>
-                </li>
+                {user ? (
+                  <>
+                    <li>
+                      <Link href="/dashboard" className="hover:text-primary transition-colors">
+                        Dashboard
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/dashboard/settings" className="hover:text-primary transition-colors">
+                        Settings
+                      </Link>
+                    </li>
+                  </>
+                ) : (
+                  <>
+                    <li>
+                      <Link href="/login" className="hover:text-primary transition-colors">
+                        Login
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/signup" className="hover:text-primary transition-colors">
+                        Sign Up
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/forgot-password" className="hover:text-primary transition-colors">
+                        Reset Password
+                      </Link>
+                    </li>
+                  </>
+                )}
               </ul>
             </div>
             <div>
@@ -167,7 +251,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </footer>
-    </AuthProvider>
+    </>
   );
 }
 
@@ -177,8 +261,10 @@ export default function ClientLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ThemeProvider>
-      <LayoutContent>{children}</LayoutContent>
-    </ThemeProvider>
+    <AuthProvider>
+      <ThemeProvider>
+        <LayoutContent>{children}</LayoutContent>
+      </ThemeProvider>
+    </AuthProvider>
   );
 } 

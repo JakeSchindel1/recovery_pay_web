@@ -5,7 +5,7 @@ import { supabase } from './supabase';
  * @param userId The user ID to check
  * @returns Promise<boolean> True if the user has premium access
  */
-export async function isPremiumUser(userId: string): Promise<boolean> {
+export async function checkPremiumUser(userId: string): Promise<boolean> {
   try {
     // Get the user's organization
     const { data: userOrg, error: orgError } = await supabase
@@ -49,4 +49,10 @@ export async function isPremiumUser(userId: string): Promise<boolean> {
     
     return false;
   }
+}
+
+// Mock implementation for premium features
+export function isPremiumUser(): boolean {
+  // For development purposes, return true to enable premium features
+  return true;
 } 

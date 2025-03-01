@@ -1,32 +1,123 @@
 'use client';
 
-import Link from 'next/link';
+import React from 'react';
+import { Button } from '@/components/ui/button';
 
 interface PremiumFeatureMessageProps {
   title: string;
   description: string;
+  ctaText?: string;
+  onCtaClick?: () => void;
 }
 
-export function PremiumFeatureMessage({ title, description }: PremiumFeatureMessageProps) {
+export function PremiumFeatureMessage({
+  title,
+  description,
+  ctaText = 'Upgrade to Premium',
+  onCtaClick
+}: PremiumFeatureMessageProps) {
   return (
-    <div className="bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-lg">
-      <div className="flex">
-        <div className="flex-shrink-0">
-          <svg className="h-6 w-6 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+    <div className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30 rounded-xl p-8 shadow-sm border border-indigo-100 dark:border-indigo-900/50">
+      <div className="flex flex-col md:flex-row items-center gap-6">
+        <div className="w-24 h-24 flex-shrink-0 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center shadow-md">
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            width="40" 
+            height="40" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="white" 
+            strokeWidth="2" 
+            strokeLinecap="round" 
+            strokeLinejoin="round"
+          >
+            <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+            <path d="M2 17l10 5 10-5"></path>
+            <path d="M2 12l10 5 10-5"></path>
           </svg>
         </div>
-        <div className="ml-4">
-          <h3 className="text-lg font-medium text-yellow-800">{title} - Premium Feature</h3>
-          <p className="mt-2 text-yellow-700">{description}</p>
-          <div className="mt-4">
-            <Link 
-              href="/dashboard/settings/billing" 
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
+        
+        <div className="flex-1 text-center md:text-left">
+          <h2 className="text-2xl font-bold mb-2 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+            {title}
+          </h2>
+          <p className="text-gray-600 dark:text-gray-300 mb-6 max-w-lg">
+            {description}
+          </p>
+          <Button 
+            onClick={onCtaClick}
+            className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium px-6 py-2 rounded-lg shadow-md hover:shadow-lg transition-all"
+          >
+            {ctaText}
+          </Button>
+        </div>
+      </div>
+      
+      <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
+          <div className="text-indigo-600 dark:text-indigo-400 mb-2">
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              width="24" 
+              height="24" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
             >
-              Upgrade to Premium
-            </Link>
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
           </div>
+          <h3 className="font-semibold mb-1">Enhanced Security</h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400">Advanced protection for your data and settings</p>
+        </div>
+        
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
+          <div className="text-indigo-600 dark:text-indigo-400 mb-2">
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              width="24" 
+              height="24" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+            >
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+              <line x1="9" y1="9" x2="9.01" y2="9"></line>
+              <line x1="15" y1="9" x2="15.01" y2="9"></line>
+            </svg>
+          </div>
+          <h3 className="font-semibold mb-1">Custom Branding</h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400">Personalize your app with your own colors and logo</p>
+        </div>
+        
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
+          <div className="text-indigo-600 dark:text-indigo-400 mb-2">
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              width="24" 
+              height="24" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+            >
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+          </div>
+          <h3 className="font-semibold mb-1">Team Collaboration</h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400">Share themes with your entire organization</p>
         </div>
       </div>
     </div>

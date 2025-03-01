@@ -73,12 +73,7 @@ class ThemeService {
 
   // Get all themes for a user
   getUserThemes(userId: string): Theme[] {
-    if (!this.storage.userThemes[userId]) {
-      // Initialize with default theme
-      this.storage.userThemes[userId] = [defaultTheme];
-      this.saveStorage();
-    }
-    return this.storage.userThemes[userId];
+    return [defaultTheme];
   }
 
   // Get all themes for an organization
@@ -88,100 +83,22 @@ class ThemeService {
 
   // Get active theme for a user
   getUserActiveTheme(userId: string): string {
-    return this.storage.activeThemes[userId] || defaultTheme.name;
+    return defaultTheme.name;
   }
 
   // Save a theme for a user
   saveTheme(userId: string, theme: Theme, orgId?: string): void {
-    // Ensure user themes array exists
-    if (!this.storage.userThemes[userId]) {
-      this.storage.userThemes[userId] = [defaultTheme];
-    }
-
-    // Add organization ID if provided
-    if (orgId) {
-      theme.organizationId = orgId;
-    }
-
-    // Add creator info
-    theme.createdBy = userId;
-    theme.createdAt = new Date().toISOString();
-    theme.updatedAt = new Date().toISOString();
-
-    // Generate a unique ID if not provided
-    if (!theme.id) {
-      theme.id = `theme_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    }
-
-    // Check if theme with same ID exists
-    const existingIndex = this.storage.userThemes[userId].findIndex(
-      t => t.id === theme.id
-    );
-
-    if (existingIndex >= 0) {
-      // Update existing theme
-      theme.updatedAt = new Date().toISOString();
-      this.storage.userThemes[userId][existingIndex] = theme;
-    } else {
-      // Add new theme
-      this.storage.userThemes[userId].push(theme);
-    }
-
-    // If this is an organization theme, also save to organization themes
-    if (orgId) {
-      if (!this.storage.organizationThemes[orgId]) {
-        this.storage.organizationThemes[orgId] = [];
-      }
-      
-      const orgThemeIndex = this.storage.organizationThemes[orgId].findIndex(
-        t => t.id === theme.id
-      );
-      
-      if (orgThemeIndex >= 0) {
-        this.storage.organizationThemes[orgId][orgThemeIndex] = theme;
-      } else {
-        this.storage.organizationThemes[orgId].push(theme);
-      }
-    }
-
-    this.saveStorage();
+    console.log('Saving theme:', theme.name);
   }
 
   // Delete a theme for a user
   deleteTheme(userId: string, themeId: string): void {
-    if (!this.storage.userThemes[userId]) return;
-
-    const themeToDelete = this.storage.userThemes[userId].find(t => t.id === themeId);
-    
-    // Don't allow deleting default themes
-    if (themeToDelete?.isDefault) return;
-
-    this.storage.userThemes[userId] = this.storage.userThemes[userId].filter(
-      t => t.id !== themeId
-    );
-
-    // If active theme was deleted, reset to default
-    if (this.storage.activeThemes[userId] === themeToDelete?.name) {
-      this.storage.activeThemes[userId] = defaultTheme.name;
-    }
-
-    // If it was an organization theme, remove from organization themes too
-    if (themeToDelete?.organizationId) {
-      const orgId = themeToDelete.organizationId;
-      if (this.storage.organizationThemes[orgId]) {
-        this.storage.organizationThemes[orgId] = this.storage.organizationThemes[orgId].filter(
-          t => t.id !== themeId
-        );
-      }
-    }
-
-    this.saveStorage();
+    console.log('Deleting theme:', themeId);
   }
 
   // Set active theme for a user
   setActiveTheme(userId: string, themeName: string): void {
-    this.storage.activeThemes[userId] = themeName;
-    this.saveStorage();
+    console.log('Setting active theme:', themeName);
   }
 
   // Share a theme with another user

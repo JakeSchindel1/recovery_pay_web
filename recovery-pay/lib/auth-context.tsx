@@ -68,7 +68,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Protect routes that require authentication
   useEffect(() => {
     if (!isLoading && !user) {
-      const publicRoutes = ['/login', '/signup', '/forgot-password', '/reset-password', '/signup/confirmation'];
+      const publicRoutes = ['/', '/about', '/pricing', '/login', '/signup', '/forgot-password', '/reset-password', '/signup/confirmation'];
       if (!publicRoutes.includes(pathname) && !pathname.startsWith('/_next')) {
         router.push('/login');
       }
