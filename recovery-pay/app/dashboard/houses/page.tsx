@@ -71,7 +71,8 @@ export default function Houses() {
     }
   ];
 
-  const [houses, setHouses] = useState(initialHouses);
+  // Change from useState to const since we're not modifying houses
+  const houses = initialHouses;
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All Statuses');
 

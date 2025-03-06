@@ -77,7 +77,9 @@ export default function Dashboard() {
           Dashboard Overview
         </div>
         <h1 className="text-3xl md:text-4xl font-bold mb-2 text-foreground">Welcome to Your Dashboard</h1>
-        <p className="text-lg text-mutedForeground">Here's what's happening with your recovery houses today.</p>
+        <div className="mt-2 flex items-center">
+          <span className="text-sm text-mutedForeground ml-2">Here&apos;s what&apos;s happening with your recovery houses today.</span>
+        </div>
       </div>
 
       {/* Stats Grid */}

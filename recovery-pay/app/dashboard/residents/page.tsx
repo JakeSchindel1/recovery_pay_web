@@ -104,7 +104,7 @@ export default function Residents() {
     },
   ];
 
-  const [residents, setResidents] = useState(initialResidents);
+  const residents = initialResidents;
   const [searchTerm, setSearchTerm] = useState('');
   const [houseFilter, setHouseFilter] = useState('All Houses');
   const [paymentStatusFilter, setPaymentStatusFilter] = useState('All Statuses');

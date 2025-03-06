@@ -5,8 +5,8 @@ import { useState } from 'react';
 
 export default function Payments() {
   // State for payments data and filters
-  const [payments, setPayments] = useState(initialPayments);
-  const [upcomingPayments, setUpcomingPayments] = useState(initialUpcomingPayments);
+  const payments = initialPayments;
+  const upcomingPayments = initialUpcomingPayments;
   const [searchTerm, setSearchTerm] = useState('');
   const [houseFilter, setHouseFilter] = useState('All Houses');
   const [paymentMethodFilter, setPaymentMethodFilter] = useState('All Methods');

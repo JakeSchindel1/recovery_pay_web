@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 
 export const metadata = {
@@ -71,7 +70,7 @@ export default function AboutPage() {
             <div>
               <h2 className="text-3xl md:text-4xl font-bold mb-6 text-foreground">Why We Started</h2>
               <p className="text-lg text-mutedForeground mb-6 leading-relaxed">
-                Our founder, a recovery house operator, experienced firsthand the challenges of managing finances while trying to provide quality care. Existing financial tools weren't designed for the unique needs of recovery houses.
+                Our founder, a recovery house operator, experienced firsthand the challenges of managing finances while trying to provide quality care. Existing financial tools weren&apos;t designed for the unique needs of recovery houses.
               </p>
               <p className="text-lg text-mutedForeground mb-8 leading-relaxed">
                 We built RecoveryPay to solve these challenges, creating a platform specifically designed for the recovery community that combines payment processing, resident management, and financial analytics in one intuitive system.
@@ -205,7 +204,7 @@ export default function AboutPage() {
           </div>
           <h2 className="text-3xl md:text-4xl font-bold mb-6 text-foreground">Ready to transform your recovery house?</h2>
           <p className="text-xl text-mutedForeground mb-10 max-w-2xl mx-auto">
-            Join hundreds of recovery houses already using our platform to streamline their operations.
+            Join hundreds of recovery houses already using our platform to streamline their operations and boost their collection rates to 98.5% or higher.
           </p>
           <div className="flex flex-col sm:flex-row gap-5 justify-center">
             <Link
