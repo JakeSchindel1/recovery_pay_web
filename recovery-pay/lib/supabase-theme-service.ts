@@ -1,5 +1,4 @@
-import { Theme, ThemeVariant, defaultTheme, convertToReactNativeTheme } from './themes';
-import { supabase } from './supabase';
+import { Theme, ThemeVariant, defaultTheme } from './themes';
 
 // Interface for theme database model
 interface ThemeRecord {

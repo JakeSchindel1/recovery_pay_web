@@ -28,7 +28,7 @@ export default function AboutPage() {
               Revolutionizing Recovery House <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-500">Financial Management</span>
             </h1>
             <p className="text-xl text-mutedForeground max-w-3xl mx-auto leading-relaxed">
-              We're on a mission to transform how recovery houses manage their finances, empowering them to focus on what matters most—helping residents on their journey to recovery.
+              We&apos;re on a mission to transform how recovery houses manage their finances, empowering them to focus on what matters most—helping residents on their journey to recovery.
             </p>
           </div>
         </div>
@@ -165,12 +165,12 @@ export default function AboutPage() {
           
           <div className="grid md:grid-cols-4 gap-8">
             {[
-              { name: "John Smith", role: "Founder & CEO", image: "/team/placeholder.png" },
+              { name: "John Smith", role: "Founder &amp; CEO", image: "/team/placeholder.png" },
               { name: "Sarah Johnson", role: "Chief Technology Officer", image: "/team/placeholder.png" },
               { name: "Michael Brown", role: "Head of Customer Success", image: "/team/placeholder.png" },
               { name: "Emily Davis", role: "Lead Product Designer", image: "/team/placeholder.png" }
             ].map((member, index) => (
-              <div key={index} className="group bg-card/30 backdrop-blur-md rounded-3xl border border-white/10 overflow-hidden hover:border-primary/30 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5">
+              <div key={index} className="group bg-card/30 backdrop-blur-md rounded-3xl border border-white/10 overflow-hidden hover:border-primary/30 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5" role="article" aria-label={`Team member ${member.name}`}>
                 <div className="h-48 bg-gradient-to-br from-primary/80 to-blue-500/80 relative">
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="w-20 h-20 rounded-full bg-white/20 flex items-center justify-center text-white text-2xl font-bold">
@@ -210,6 +210,7 @@ export default function AboutPage() {
             <Link
               href="/signup"
               className="group relative px-8 py-4 bg-primary text-white rounded-xl text-center font-medium transition-all duration-300 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 overflow-hidden"
+              aria-label="Start your free trial"
             >
               <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-primary to-primary-dark transition-all duration-300 transform group-hover:translate-y-full"></span>
               <span className="absolute inset-0 w-full h-full bg-gradient-to-br from-blue-500 to-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
@@ -223,11 +224,12 @@ export default function AboutPage() {
             <Link
               href="/contact"
               className="group px-8 py-4 bg-white/10 backdrop-blur-md border border-white/20 text-foreground rounded-xl text-center font-medium hover:bg-white/20 transition-all duration-300 relative overflow-hidden"
+              aria-label="Contact our team"
             >
               <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 group-hover:animate-shimmer"></span>
               <span className="relative flex items-center justify-center">
                 Contact Us
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" role="img">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
               </span>
