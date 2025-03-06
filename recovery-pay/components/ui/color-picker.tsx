@@ -26,154 +26,155 @@ const colorPalettes = {
   gray: ['#111827', '#374151', '#6b7280', '#9ca3af', '#d1d5db', '#e5e7eb', '#f3f4f6', '#ffffff']
 }
 
-// Debounce function to limit how often a function is called
-function useDebounce<T>(value: T, delay: number): T {
-  const [debouncedValue, setDebouncedValue] = React.useState<T>(value);
+// Define proper types for the ColorPickerContentProps
+interface ColorPickerContentProps {
+  internalColor: string;
+  customColor: string;
+  handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleTextChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleColorSelect: (color: string) => void;
+  applyCustomColor: () => void;
+  closeColorPicker: () => void;
+  saveAndClose: () => void;
+  showPreview?: boolean;
+  onFocus?: () => void;
+  onBlur?: () => void;
+}
 
-  React.useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [value, delay]);
-
-  return debouncedValue;
+// Color picker content component
+function ColorPickerContentComponent({ 
+  internalColor, 
+  customColor, 
+  handleChange, 
+  handleTextChange, 
+  handleColorSelect, 
+  applyCustomColor, 
+  closeColorPicker, 
+  saveAndClose, 
+  showPreview, 
+  onFocus, 
+  onBlur 
+}: ColorPickerContentProps) {
+  // Memoize the color palettes to prevent re-rendering
+  const colorPaletteElements = React.useMemo(() => (
+    Object.entries(colorPalettes).map(([name, colors]) => (
+      <div key={name} className="space-y-1 mb-3">
+        <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{name}</div>
+        <div className="flex flex-wrap gap-1.5">
+          {colors.map((paletteColor) => (
+            <div
+              key={paletteColor}
+              className="w-7 h-7 rounded-md cursor-pointer border hover:scale-110 transition-all duration-200 shadow-sm hover:shadow-md"
+              style={{ backgroundColor: paletteColor }}
+              onClick={() => handleColorSelect(paletteColor)}
+              title={paletteColor}
+            />
+          ))}
+        </div>
+      </div>
+    ))
+  ), [handleColorSelect]);
+  
+  // Memoize the preview to prevent re-rendering
+  const colorPreview = React.useMemo(() => (
+    showPreview && (
+      <div className="pt-3 border-t">
+        <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-2">Preview</div>
+        <div className="flex gap-3">
+          <div className="flex-1 p-3 rounded-md shadow-inner" style={{ backgroundColor: internalColor }}>
+            <div className="text-xs font-medium text-white text-center">Text</div>
+          </div>
+          <div className="flex-1 p-3 rounded-md bg-white border shadow-inner">
+            <div className="text-xs font-medium text-center" style={{ color: internalColor }}>Text</div>
+          </div>
+        </div>
+      </div>
+    )
+  ), [internalColor, showPreview]);
+  
+  return (
+    <div className="space-y-5 backdrop-blur-sm">
+      <div className="flex justify-between items-center">
+        <Label htmlFor="color-input" className="text-lg font-semibold">Color Picker</Label>
+        <div className="text-sm bg-muted/50 px-2 py-1 rounded-md font-mono">{internalColor}</div>
+      </div>
+      
+      {/* Selected color preview */}
+      <div 
+        className="h-20 rounded-lg shadow-md transition-all duration-300 relative overflow-hidden"
+        style={{ 
+          backgroundColor: internalColor,
+          backgroundImage: `linear-gradient(to bottom right, ${internalColor}99, ${internalColor})`
+        }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
+      </div>
+      
+      {/* Standard color picker */}
+      <div className="pt-3">
+        <div className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">Color Picker</div>
+        <input
+          id="color-input"
+          type="color"
+          value={internalColor}
+          onChange={handleChange}
+          className="w-full h-12 cursor-pointer rounded-md shadow-sm transition-all hover:shadow-md"
+          onFocus={onFocus}
+          onBlur={onBlur}
+        />
+      </div>
+      
+      {/* Custom color input */}
+      <div className="pt-3 border-t">
+        <div className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">Custom Color</div>
+        <div className="flex gap-2 items-center">
+          <input
+            type="text"
+            value={customColor}
+            onChange={handleTextChange}
+            className="flex-1 h-10 rounded-md border border-input bg-background/50 backdrop-blur-sm px-3 py-1 text-sm shadow-sm transition-all focus:shadow-md"
+            placeholder="#000000"
+          />
+          <button 
+            onClick={applyCustomColor}
+            className="px-3 py-2 text-xs bg-primary text-primary-foreground rounded-md hover:bg-primary/90 shadow-sm hover:shadow-md transition-all"
+          >
+            Apply
+          </button>
+        </div>
+      </div>
+      
+      {/* Color palettes */}
+      <div className="pt-3 border-t space-y-2 max-h-[200px] overflow-y-auto pr-1 scrollbar-thin">
+        <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Color Palettes</div>
+        {colorPaletteElements}
+      </div>
+      
+      {colorPreview}
+      
+      {/* Action buttons */}
+      <div className="pt-4 border-t flex justify-end gap-3">
+        <button 
+          onClick={closeColorPicker}
+          className="px-4 py-2 text-sm bg-muted/70 backdrop-blur-sm text-muted-foreground rounded-md hover:bg-muted transition-all shadow-sm hover:shadow-md"
+        >
+          Close
+        </button>
+        <button 
+          onClick={saveAndClose}
+          className="px-4 py-2 text-sm bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-all shadow-sm hover:shadow-md"
+        >
+          Save
+        </button>
+      </div>
+    </div>
+  );
 }
 
 // Lazy loaded color picker content
 const ColorPickerContent = React.lazy(() => 
   Promise.resolve({
-    default: ({ 
-      internalColor, 
-      customColor, 
-      handleChange, 
-      handleTextChange, 
-      handleColorSelect, 
-      applyCustomColor, 
-      closeColorPicker, 
-      saveAndClose, 
-      showPreview, 
-      onFocus, 
-      onBlur 
-    }: any) => {
-      // Memoize the color palettes to prevent re-rendering
-      const colorPaletteElements = React.useMemo(() => (
-        Object.entries(colorPalettes).map(([name, colors]) => (
-          <div key={name} className="space-y-1 mb-3">
-            <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{name}</div>
-            <div className="flex flex-wrap gap-1.5">
-              {colors.map((paletteColor) => (
-                <div
-                  key={paletteColor}
-                  className="w-7 h-7 rounded-md cursor-pointer border hover:scale-110 transition-all duration-200 shadow-sm hover:shadow-md"
-                  style={{ backgroundColor: paletteColor }}
-                  onClick={() => handleColorSelect(paletteColor)}
-                  title={paletteColor}
-                />
-              ))}
-            </div>
-          </div>
-        ))
-      ), [handleColorSelect]);
-      
-      // Memoize the preview to prevent re-rendering
-      const colorPreview = React.useMemo(() => (
-        showPreview && (
-          <div className="pt-3 border-t">
-            <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-2">Preview</div>
-            <div className="flex gap-3">
-              <div className="flex-1 p-3 rounded-md shadow-inner" style={{ backgroundColor: internalColor }}>
-                <div className="text-xs font-medium text-white text-center">Text</div>
-              </div>
-              <div className="flex-1 p-3 rounded-md bg-white border shadow-inner">
-                <div className="text-xs font-medium text-center" style={{ color: internalColor }}>Text</div>
-              </div>
-            </div>
-          </div>
-        )
-      ), [internalColor, showPreview]);
-      
-      return (
-        <div className="space-y-5 backdrop-blur-sm">
-          <div className="flex justify-between items-center">
-            <Label htmlFor="color-input" className="text-lg font-semibold">Color Picker</Label>
-            <div className="text-sm bg-muted/50 px-2 py-1 rounded-md font-mono">{internalColor}</div>
-          </div>
-          
-          {/* Selected color preview */}
-          <div 
-            className="h-20 rounded-lg shadow-md transition-all duration-300 relative overflow-hidden"
-            style={{ 
-              backgroundColor: internalColor,
-              backgroundImage: `linear-gradient(to bottom right, ${internalColor}99, ${internalColor})`
-            }}
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
-          </div>
-          
-          {/* Standard color picker */}
-          <div className="pt-3">
-            <div className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">Color Picker</div>
-            <input
-              id="color-input"
-              type="color"
-              value={internalColor}
-              onChange={handleChange}
-              className="w-full h-12 cursor-pointer rounded-md shadow-sm transition-all hover:shadow-md"
-              onFocus={onFocus}
-              onBlur={onBlur}
-            />
-          </div>
-          
-          {/* Custom color input */}
-          <div className="pt-3 border-t">
-            <div className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">Custom Color</div>
-            <div className="flex gap-2 items-center">
-              <input
-                type="text"
-                value={customColor}
-                onChange={handleTextChange}
-                className="flex-1 h-10 rounded-md border border-input bg-background/50 backdrop-blur-sm px-3 py-1 text-sm shadow-sm transition-all focus:shadow-md"
-                placeholder="#000000"
-              />
-              <button 
-                onClick={applyCustomColor}
-                className="px-3 py-2 text-xs bg-primary text-primary-foreground rounded-md hover:bg-primary/90 shadow-sm hover:shadow-md transition-all"
-              >
-                Apply
-              </button>
-            </div>
-          </div>
-          
-          {/* Color palettes */}
-          <div className="pt-3 border-t space-y-2 max-h-[200px] overflow-y-auto pr-1 scrollbar-thin">
-            <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Color Palettes</div>
-            {colorPaletteElements}
-          </div>
-          
-          {colorPreview}
-          
-          {/* Action buttons */}
-          <div className="pt-4 border-t flex justify-end gap-3">
-            <button 
-              onClick={closeColorPicker}
-              className="px-4 py-2 text-sm bg-muted/70 backdrop-blur-sm text-muted-foreground rounded-md hover:bg-muted transition-all shadow-sm hover:shadow-md"
-            >
-              Close
-            </button>
-            <button 
-              onClick={saveAndClose}
-              className="px-4 py-2 text-sm bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-all shadow-sm hover:shadow-md"
-            >
-              Save
-            </button>
-          </div>
-        </div>
-      );
-    }
+    default: ColorPickerContentComponent
   })
 );
 

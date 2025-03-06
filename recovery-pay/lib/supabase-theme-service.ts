@@ -13,43 +13,6 @@ interface ThemeRecord {
   updated_at: string;
 }
 
-// Interface for user theme preferences
-interface UserThemePreference {
-  user_id: string;
-  theme_id: string;
-  is_dark_mode: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
-// Convert database theme record to application theme model
-function mapThemeRecordToTheme(record: ThemeRecord): Theme {
-  return {
-    id: record.id,
-    name: record.name,
-    light: record.light_variant,
-    dark: record.dark_variant,
-    createdBy: record.created_by,
-    organizationId: record.organization_id,
-    isDefault: record.is_default,
-    createdAt: record.created_at,
-    updatedAt: record.updated_at
-  };
-}
-
-// Convert application theme model to database theme record
-function mapThemeToThemeRecord(theme: Theme): Partial<ThemeRecord> {
-  return {
-    id: theme.id,
-    name: theme.name,
-    light_variant: theme.light,
-    dark_variant: theme.dark,
-    created_by: theme.createdBy,
-    organization_id: theme.organizationId,
-    is_default: theme.isDefault || false
-  };
-}
-
 // Mock implementation of the theme service
 class SupabaseThemeService {
   // Get user themes

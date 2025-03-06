@@ -3,6 +3,7 @@
 import { useState, FormEvent } from 'react';
 import Link from 'next/link';
 import { supabase } from '../../lib/supabase';
+import { AuthError } from '@supabase/supabase-js';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
@@ -27,10 +28,11 @@ export default function ForgotPassword() {
         type: 'success',
         text: 'Password reset link sent to your email!',
       });
-    } catch (error: any) {
+    } catch (error) {
+      const authError = error as AuthError;
       setMessage({
         type: 'error',
-        text: error.message || 'An error occurred. Please try again.',
+        text: authError.message || 'An error occurred. Please try again.',
       });
     } finally {
       setLoading(false);
@@ -45,7 +47,7 @@ export default function ForgotPassword() {
             Reset your password
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Enter your email address and we'll send you a link to reset your password
+            Enter your email address and we&apos;ll send you a link to reset your password
           </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleResetPassword}>

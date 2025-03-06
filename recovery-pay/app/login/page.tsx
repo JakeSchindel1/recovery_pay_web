@@ -4,6 +4,7 @@ import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '../../lib/supabase';
+import { AuthError } from '@supabase/supabase-js';
 
 export default function Login() {
   const router = useRouter();
@@ -31,8 +32,9 @@ export default function Login() {
         // Redirect to dashboard on successful login
         router.push('/dashboard');
       }
-    } catch (error: any) {
-      setError(error.message || 'An error occurred during login');
+    } catch (error) {
+      const authError = error as AuthError;
+      setError(authError.message || 'An error occurred during login');
     } finally {
       setLoading(false);
     }
@@ -130,7 +132,7 @@ export default function Login() {
 
           <div className="text-center">
             <p className="text-sm text-gray-600">
-              Don't have an account?{' '}
+              Don&apos;t have an account?{' '}
               <Link href="/signup" className="font-medium text-blue-600 hover:text-blue-500">
                 Sign up
               </Link>

@@ -51,13 +51,67 @@ const useTheme = () => {
   };
 };
 
+// Color categories for organization
+const colorCategories = [
+  {
+    name: 'Primary Colors',
+    description: 'These colors define your brand identity',
+    colors: ['primary', 'secondary', 'accent']
+  },
+  {
+    name: 'Background Colors',
+    description: 'Used for page and component backgrounds',
+    colors: ['background', 'backgroundSecondary']
+  },
+  {
+    name: 'Text Colors',
+    description: 'Used for text content throughout the app',
+    colors: ['text', 'textSecondary', 'textMuted']
+  },
+  {
+    name: 'Status Colors',
+    description: 'Used to indicate different states and notifications',
+    colors: ['success', 'error', 'warning', 'info']
+  },
+  {
+    name: 'Border Colors',
+    description: 'Used for separators and boundaries',
+    colors: ['border', 'borderLight']
+  },
+  {
+    name: 'Button Colors',
+    description: 'Used for interactive elements',
+    colors: ['buttonBackground', 'buttonText', 'buttonSecondaryBackground', 'buttonSecondaryText']
+  }
+];
+
+// Types for color categories
+interface ColorCategory {
+  name: string;
+  description: string;
+  colors: string[];
+}
+
 export default function ThemeEditor() {
   const { user, loading } = useAuth();
   const { theme: currentTheme, setTheme } = useTheme();
   const router = useRouter();
   
+  // State for theme management
+  const [themes, setThemes] = useState<Theme[]>([]);
+  const [activeTheme, setActiveTheme] = useState<Theme>(defaultTheme);
+  const [activeTab, setActiveTab] = useState<'light' | 'dark'>('light');
+  const [themeName, setThemeName] = useState('');
+  const [isPremium] = useState(true); // Set to true for development
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [highlightedColor, setHighlightedColor] = useState<string | null>(null);
+  const [selectedThemeId, setSelectedThemeId] = useState<string | null>(null);
+  const [tabSwitchAnimation, setTabSwitchAnimation] = useState<boolean>(false);
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
+  
   // Apply global styles
-  React.useEffect(() => {
+  useEffect(() => {
     const styleElement = document.createElement('style');
     styleElement.innerHTML = globalStyles;
     document.head.appendChild(styleElement);
@@ -67,54 +121,6 @@ export default function ThemeEditor() {
     };
   }, []);
   
-  // State for theme management
-  const [themes, setThemes] = useState<Theme[]>([]);
-  const [activeTheme, setActiveTheme] = useState<Theme>(defaultTheme);
-  const [previousTheme, setPreviousTheme] = useState<Theme | null>(null);
-  const [activeTab, setActiveTab] = useState<'light' | 'dark'>('light');
-  const [themeName, setThemeName] = useState('');
-  const [isPremium, setIsPremium] = useState(true); // Set to true for development
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [highlightedColor, setHighlightedColor] = useState<string | null>(null);
-  const [showComparison, setShowComparison] = useState(false);
-  const [selectedThemeId, setSelectedThemeId] = useState<string | null>(null);
-  const [tabSwitchAnimation, setTabSwitchAnimation] = useState<boolean>(false);
-  
-  // Color categories for organization
-  const colorCategories = [
-    {
-      name: 'Primary Colors',
-      description: 'These colors define your brand identity',
-      colors: ['primary', 'secondary', 'accent']
-    },
-    {
-      name: 'Background Colors',
-      description: 'Used for page and component backgrounds',
-      colors: ['background', 'backgroundSecondary']
-    },
-    {
-      name: 'Text Colors',
-      description: 'Used for text content throughout the app',
-      colors: ['text', 'textSecondary', 'textMuted']
-    },
-    {
-      name: 'Status Colors',
-      description: 'Used to indicate different states and notifications',
-      colors: ['success', 'error', 'warning', 'info']
-    },
-    {
-      name: 'Border Colors',
-      description: 'Used for separators and boundaries',
-      colors: ['border', 'borderLight']
-    },
-    {
-      name: 'Button Colors',
-      description: 'Used for interactive elements',
-      colors: ['buttonBackground', 'buttonText', 'buttonSecondaryBackground', 'buttonSecondaryText']
-    }
-  ];
-
   // Load user themes
   useEffect(() => {
     async function loadThemes() {
@@ -151,9 +157,16 @@ export default function ThemeEditor() {
     loadThemes();
   }, []);
 
+  // Toggle section expansion
+  const toggleSection = useCallback((sectionName: string) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [sectionName]: !prev[sectionName]
+    }));
+  }, []);
+
   // Handle color change
   const handleColorChange = useCallback((colorKey: string, value: string) => {
-    // Update theme immediately
     setActiveTheme(prev => {
       const variant = activeTab === 'light' ? { ...prev.light } : { ...prev.dark };
       variant.colors = { ...variant.colors, [colorKey]: value };
@@ -164,31 +177,21 @@ export default function ThemeEditor() {
       };
     });
     
-    // Highlight for a few seconds - use requestAnimationFrame for better performance
     setHighlightedColor(colorKey);
     
-    // Clear any existing timeout
     if (window.highlightTimeout) {
       clearTimeout(window.highlightTimeout);
     }
     
-    // Use requestAnimationFrame for smoother animation
     window.highlightTimeout = setTimeout(() => {
-      // Use requestAnimationFrame to ensure this happens during an idle frame
       requestAnimationFrame(() => {
         setHighlightedColor(null);
       });
     }, 2000);
   }, [activeTab]);
 
-  // Reset comparison
-  const resetComparison = () => {
-    setPreviousTheme(null);
-    setShowComparison(false);
-  };
-
   // Save theme
-  const saveTheme = async () => {
+  const saveTheme = useCallback(async () => {
     if (!isPremium) {
       toast.error('Premium subscription required to save themes');
       return;
@@ -209,7 +212,6 @@ export default function ThemeEditor() {
       
       const savedTheme = await supabaseThemeService.saveTheme(themeToSave);
       
-      // Update themes list
       setThemes(prev => {
         const existing = prev.findIndex(t => t.id === savedTheme.id);
         if (existing >= 0) {
@@ -219,7 +221,6 @@ export default function ThemeEditor() {
         }
       });
       
-      // Update active theme
       setActiveTheme(savedTheme);
       
       toast.success('Theme saved successfully');
@@ -229,21 +230,19 @@ export default function ThemeEditor() {
     } finally {
       setIsSaving(false);
     }
-  };
+  }, [activeTheme, isPremium, themeName]);
 
   // Apply theme
-  const applyTheme = async () => {
+  const applyTheme = useCallback(async () => {
     if (!activeTheme.id && activeTheme !== defaultTheme) {
       toast.error('Please save the theme first');
       return;
     }
     
     try {
-      // Set as active theme
       const themeId = activeTheme.id || 'default';
       await supabaseThemeService.setActiveTheme(themeId, activeTab === 'dark');
       
-      // Apply to current session
       setTheme(activeTab === 'dark' ? 'dark' : 'light', activeTheme);
       
       toast.success('Theme applied successfully');
@@ -251,7 +250,17 @@ export default function ThemeEditor() {
       console.error('Error applying theme:', error);
       toast.error('Failed to apply theme');
     }
-  };
+  }, [activeTheme, activeTab, setTheme]);
+
+  // Select theme
+  const selectTheme = useCallback((themeId: string) => {
+    const selected = themes.find(t => t.id === themeId);
+    if (selected) {
+      setActiveTheme(selected);
+      setThemeName(selected.name);
+      setSelectedThemeId(themeId);
+    }
+  }, [themes]);
 
   // Create new theme
   const createNewTheme = () => {
@@ -350,30 +359,10 @@ export default function ThemeEditor() {
     input.click();
   };
 
-  // Select a theme
-  const selectTheme = (theme: Theme) => {
-    setActiveTheme(theme);
-    setThemeName(theme.name);
-  };
-
   // Toggle premium mode for development
   const togglePremium = () => {
-    setIsPremium(!isPremium);
+    // Implementation needed
   };
-
-  // If not premium, show upgrade message
-  if (!isPremium) {
-    return (
-      <div className="p-8 max-w-5xl mx-auto">
-        <PremiumFeatureMessage 
-          title="Theme Editor Pro" 
-          description="Customize your application's appearance with our powerful theme editor. Create, save, and share themes across your organization."
-          ctaText="Simulate Premium User"
-          onCtaClick={togglePremium}
-        />
-      </div>
-    );
-  }
 
   // Phone preview component - memoize to prevent re-renders
   const PhonePreview = React.memo(() => {
@@ -803,17 +792,6 @@ export default function ThemeEditor() {
     }
   };
 
-  // Add this state for tracking collapsed sections
-  const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
-
-  // Add this function to toggle section collapse
-  const toggleSection = (sectionName: string) => {
-    setCollapsedSections(prev => ({
-      ...prev,
-      [sectionName]: !prev[sectionName]
-    }));
-  };
-
   // Memoize the color picker component to prevent unnecessary re-renders
   const MemoizedColorPicker = useCallback(({ colorKey, colorValue }: { colorKey: string, colorValue: string }) => {
     const formattedLabel = colorKey.replace(/([A-Z])/g, ' $1').split(' ').map(word => 
@@ -875,11 +853,11 @@ export default function ThemeEditor() {
             <p className="text-sm text-muted-foreground">{category.description}</p>
           </div>
           <div className="text-muted-foreground bg-background/80 w-8 h-8 rounded-full flex items-center justify-center shadow-sm">
-            {collapsedSections[sectionKey] ? '▼' : '▲'}
+            {expandedSections[sectionKey] ? '▼' : '▲'}
           </div>
         </div>
         
-        {!collapsedSections[sectionKey] && (
+        {!expandedSections[sectionKey] && (
           <div className="p-5 space-y-6">
             {category.colors.map((colorKey: string) => {
               const colorValue = themeVariant.colors[colorKey as keyof ThemeColors];
@@ -889,7 +867,7 @@ export default function ThemeEditor() {
         )}
       </div>
     );
-  }, [activeTheme, collapsedSections, MemoizedColorPicker, toggleSection]);
+  }, [activeTheme, expandedSections, MemoizedColorPicker, toggleSection]);
 
   // Add this function for theme selection with animation
   const selectThemeWithAnimation = (theme: Theme) => {

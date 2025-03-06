@@ -4,6 +4,7 @@ import { useState, FormEvent, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '../../lib/supabase';
+import { AuthError } from '@supabase/supabase-js';
 
 export default function ResetPassword() {
   const router = useRouter();
@@ -58,10 +59,11 @@ export default function ResetPassword() {
       setTimeout(() => {
         router.push('/login');
       }, 2000);
-    } catch (error: any) {
+    } catch (error) {
+      const authError = error as AuthError;
       setMessage({
         type: 'error',
-        text: error.message || 'An error occurred. Please try again.',
+        text: authError.message || 'An error occurred. Please try again.',
       });
     } finally {
       setLoading(false);

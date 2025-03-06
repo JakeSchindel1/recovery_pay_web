@@ -4,6 +4,7 @@ import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '../../lib/supabase';
+import { AuthError } from '@supabase/supabase-js';
 
 export default function Signup() {
   const router = useRouter();
@@ -40,8 +41,9 @@ export default function Signup() {
         // Redirect to dashboard or confirmation page
         router.push('/signup/confirmation');
       }
-    } catch (error: any) {
-      setError(error.message || 'An error occurred during signup');
+    } catch (error) {
+      const authError = error as AuthError;
+      setError(authError.message || 'An error occurred during signup');
     } finally {
       setLoading(false);
     }

@@ -24,11 +24,11 @@ export default function SignupConfirmation() {
         </div>
         <h2 className="text-3xl font-extrabold text-gray-900">Check your email</h2>
         <p className="mt-2 text-sm text-gray-600">
-          We've sent a confirmation link to your email address. Please check your inbox and click the link to verify your account.
+          We&apos;ve sent a confirmation link to your email address. Please check your inbox and click the link to verify your account.
         </p>
         <div className="mt-8 space-y-4">
           <p className="text-sm text-gray-500">
-            Didn't receive an email? Check your spam folder or{' '}
+            Didn&apos;t receive an email? Check your spam folder or{' '}
             <Link href="/signup" className="font-medium text-blue-600 hover:text-blue-500">
               try signing up again
             </Link>
