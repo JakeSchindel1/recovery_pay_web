@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Theme, ThemeVariant, defaultTheme, getThemeVariant, getThemeVariables } from './themes';
+import { Theme, ThemeVariant, defaultTheme, getThemeVariables } from './themes';
 import themeService from './theme-service';
 import { supabaseThemeService } from './supabase-theme-service';
 import { useAuth } from './auth-context';

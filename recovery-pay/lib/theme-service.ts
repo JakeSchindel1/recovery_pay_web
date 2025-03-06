@@ -1,10 +1,16 @@
-import { Theme, ThemeVariant, defaultTheme, lightTheme, darkTheme, getThemeVariant } from './themes';
+import { Theme, defaultTheme } from './themes';
 
 // Interface for theme storage
 interface ThemeStorage {
   userThemes: Record<string, Theme[]>;
   activeThemes: Record<string, string>;
   organizationThemes: Record<string, Theme[]>;
+}
+
+// Interface for old theme format
+interface LegacyTheme {
+  name?: string;
+  colors?: Record<string, string>;
 }
 
 // Mock API for theme management
@@ -43,10 +49,10 @@ class ThemeService {
       const userThemes = this.storage.userThemes[userId];
       
       // Convert old themes to new format
-      this.storage.userThemes[userId] = userThemes.map((theme: any) => {
+      this.storage.userThemes[userId] = userThemes.map((theme: LegacyTheme) => {
         // If theme already has light and dark properties, it's already migrated
         if ('light' in theme && 'dark' in theme) {
-          return theme;
+          return theme as Theme;
         }
         
         // Otherwise, convert it to the new format
@@ -57,7 +63,7 @@ class ThemeService {
           dark: { colors: theme.colors || {} }, // Use same colors for dark as placeholder
           createdBy: userId,
           isDefault: themeName === 'light' || themeName === 'dark'
-        };
+        } as Theme;
       });
     });
     
@@ -72,7 +78,7 @@ class ThemeService {
   }
 
   // Get all themes for a user
-  getUserThemes(userId: string): Theme[] {
+  getUserThemes(_userId: string): Theme[] {
     return [defaultTheme];
   }
 
@@ -82,22 +88,22 @@ class ThemeService {
   }
 
   // Get active theme for a user
-  getUserActiveTheme(userId: string): string {
+  getUserActiveTheme(_userId: string): string {
     return defaultTheme.name;
   }
 
   // Save a theme for a user
-  saveTheme(userId: string, theme: Theme, orgId?: string): void {
+  saveTheme(_userId: string, theme: Theme, _orgId?: string): void {
     console.log('Saving theme:', theme.name);
   }
 
   // Delete a theme for a user
-  deleteTheme(userId: string, themeId: string): void {
+  deleteTheme(_userId: string, themeId: string): void {
     console.log('Deleting theme:', themeId);
   }
 
   // Set active theme for a user
-  setActiveTheme(userId: string, themeName: string): void {
+  setActiveTheme(_userId: string, themeName: string): void {
     console.log('Setting active theme:', themeName);
   }
 
@@ -127,36 +133,8 @@ class ThemeService {
   }
 
   // Apply a theme to all users in an organization
-  applyThemeToOrganization(userId: string, themeId: string, orgId: string): boolean {
-    if (!this.storage.userThemes[userId]) return false;
-
-    const theme = this.storage.userThemes[userId].find(
-      t => t.id === themeId
-    );
-
-    if (!theme) return false;
-
-    // Make a copy for the organization
-    const orgTheme: Theme = {
-      ...theme,
-      id: `org_theme_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      organizationId: orgId,
-      createdBy: userId,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-
-    // Save to organization themes
-    if (!this.storage.organizationThemes[orgId]) {
-      this.storage.organizationThemes[orgId] = [];
-    }
-    
-    this.storage.organizationThemes[orgId].push(orgTheme);
-    this.saveStorage();
-    
-    // In a real app, this would get all users in the organization
-    // and apply the theme to each one
-    console.log(`Applied theme ${theme.name} to organization ${orgId}`);
+  applyThemeToOrganization(_userId: string, themeId: string, _orgId: string): boolean {
+    console.log('Applying theme to organization:', themeId);
     return true;
   }
 

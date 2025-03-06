@@ -140,13 +140,13 @@ export function getThemeVariant(theme: Theme, mode: 'light' | 'dark'): ThemeVari
 }
 
 // Get a legacy theme by name (for backward compatibility)
-export function getTheme(name: string): any {
+export function getTheme(name: string): Theme {
   switch (name) {
     case 'dark':
-      return darkTheme;
+      return darkTheme as unknown as Theme;
     case 'light':
     default:
-      return lightTheme;
+      return lightTheme as unknown as Theme;
   }
 }
 
@@ -162,7 +162,46 @@ export function getThemeVariables(themeVariant: ThemeVariant): Record<string, st
 }
 
 // Convert theme to React Native format
-export function convertToReactNativeTheme(theme: Theme, isDarkMode: boolean = false): any {
+export function convertToReactNativeTheme(theme: Theme, isDarkMode: boolean = false): {
+  colors: ThemeColors;
+  typography: {
+    fontFamily: {
+      regular: string;
+      bold: string;
+    };
+    fontSize: {
+      xs: number;
+      sm: number;
+      md: number;
+      lg: number;
+      xl: number;
+      xxl: number;
+      xxxl: number;
+    };
+    fontWeight: {
+      regular: string;
+      medium: string;
+      semiBold: string;
+      bold: string;
+    };
+  };
+  spacing: {
+    xs: number;
+    sm: number;
+    md: number;
+    lg: number;
+    xl: number;
+    xxl: number;
+  };
+  borderRadius: {
+    xs: number;
+    sm: number;
+    md: number;
+    lg: number;
+    xl: number;
+    round: number;
+  };
+} {
   const variant = isDarkMode ? theme.dark : theme.light;
   
   return {
